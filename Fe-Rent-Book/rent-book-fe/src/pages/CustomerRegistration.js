@@ -13,12 +13,14 @@ const CustomerRegistration = () => {
         "http://localhost:5289/api/v1/Customers/create",
         values
       );
-      
+
+      localStorage.setItem("customerID", response.data.customerID);
+
       notification.success({
         message: "Customer Registered",
         description: "The customer has been registered successfully.",
       });
-      navigate("/rent")
+      navigate("/rent");
     } catch (error) {
       notification.error({
         message: "Registration Failed",
@@ -46,18 +48,14 @@ const CustomerRegistration = () => {
         <Form.Item
           name="phoneNumber"
           label="Phone Number"
-          rules={[
-            { required: true, message: "Please input your phone number!" },
-          ]}
+          rules={[{ required: true, message: "Please input your phone number!" }]}
         >
           <Input />
         </Form.Item>
         <Form.Item
           name="registrationDate"
           label="Registration Date"
-          rules={[
-            { required: true, message: "Please input your registration date!" },
-          ]}
+          rules={[{ required: true, message: "Please input your registration date!" }]}
         >
           <DatePicker />
         </Form.Item>

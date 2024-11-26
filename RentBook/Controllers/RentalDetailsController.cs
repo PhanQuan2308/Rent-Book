@@ -49,7 +49,6 @@ namespace RentBook.Controllers
         [HttpPost("create")]
         public async Task<ActionResult<RentalDetail>> PostRentalDetail(RentalDetail rentalDetail)
         {
-            // Kiểm tra xem Rental có tồn tại hay không
             var rentalExists = await _context.Rentals.AnyAsync(r => r.RentalID == rentalDetail.RentalID);
             if (!rentalExists)
             {

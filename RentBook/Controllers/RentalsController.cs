@@ -49,6 +49,14 @@ namespace RentBook.Controllers
             _context.Rentals.Add(rental);
             await _context.SaveChangesAsync();
 
+            foreach (var rentalDetail in rental.RentalDetails)
+            {
+                rentalDetail.RentalID = rental.RentalID;
+                _context.RentalDetails.Add(rentalDetail);
+            }
+
+            await _context.SaveChangesAsync();
+
             var rentalWithCustomer = await _context.Rentals
                 .Where(r => r.RentalID == rental.RentalID)
                 .Include(r => r.Customer)
@@ -56,6 +64,7 @@ namespace RentBook.Controllers
 
             return CreatedAtAction(nameof(GetRental), new { id = rentalWithCustomer.RentalID }, rentalWithCustomer);
         }
+
 
 
 
@@ -126,7 +135,7 @@ namespace RentBook.Controllers
 
             var reportData = rentals.SelectMany(r => r.RentalDetails, (r, rd) => new
             {
-                bookName = rd.ComicBook.Title,  
+                bookName = rd.ComicBook.Title,
                 rentalDate = r.RentalDate,
                 returnDate = r.ReturnDate,
                 customerName = r.Customer.FullName,
