@@ -11,7 +11,7 @@ using RentBook.Model;
 namespace RentBook.Migrations
 {
     [DbContext(typeof(RentBookContext))]
-    [Migration("20241126082617_InitialCreate")]
+    [Migration("20241126084632_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -77,9 +77,6 @@ namespace RentBook.Migrations
                     b.Property<int>("CustomerID")
                         .HasColumnType("int");
 
-                    b.Property<int?>("CustomerID1")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("RentalDate")
                         .HasColumnType("datetime(6)");
 
@@ -95,8 +92,6 @@ namespace RentBook.Migrations
 
                     b.HasIndex("CustomerID");
 
-                    b.HasIndex("CustomerID1");
-
                     b.ToTable("Rentals");
                 });
 
@@ -109,8 +104,11 @@ namespace RentBook.Migrations
                     b.Property<int>("ComicBookID")
                         .HasColumnType("int");
 
+                    b.Property<int?>("ComicBookID1")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("PricePerDay")
-                        .HasColumnType("decimal(65,30)");
+                        .HasColumnType("decimal(10, 2)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -118,11 +116,18 @@ namespace RentBook.Migrations
                     b.Property<int>("RentalID")
                         .HasColumnType("int");
 
+                    b.Property<int?>("RentalID1")
+                        .HasColumnType("int");
+
                     b.HasKey("RentalDetailID");
 
                     b.HasIndex("ComicBookID");
 
+                    b.HasIndex("ComicBookID1");
+
                     b.HasIndex("RentalID");
+
+                    b.HasIndex("RentalID1");
 
                     b.ToTable("RentalDetails");
                 });
@@ -130,33 +135,33 @@ namespace RentBook.Migrations
             modelBuilder.Entity("Rental", b =>
                 {
                     b.HasOne("Customer", null)
-                        .WithMany()
-                        .HasForeignKey("CustomerID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Customer", null)
                         .WithMany("Rentals")
-                        .HasForeignKey("CustomerID1");
+                        .HasForeignKey("CustomerID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("RentalDetail", b =>
                 {
-                    b.HasOne("ComicBook", "ComicBook")
-                        .WithMany("RentalDetails")
+                    b.HasOne("ComicBook", null)
+                        .WithMany()
                         .HasForeignKey("ComicBookID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Rental", "Rental")
+                    b.HasOne("ComicBook", null)
                         .WithMany("RentalDetails")
+                        .HasForeignKey("ComicBookID1");
+
+                    b.HasOne("Rental", null)
+                        .WithMany()
                         .HasForeignKey("RentalID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("ComicBook");
-
-                    b.Navigation("Rental");
+                    b.HasOne("Rental", null)
+                        .WithMany("RentalDetails")
+                        .HasForeignKey("RentalID1");
                 });
 
             modelBuilder.Entity("ComicBook", b =>

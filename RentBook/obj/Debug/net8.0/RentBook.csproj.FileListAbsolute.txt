@@ -103,3 +103,4 @@ F:\FPT\c#\RentBook\RentBook\obj\Debug\net8.0\refint\RentBook.dll
 F:\FPT\c#\RentBook\RentBook\obj\Debug\net8.0\RentBook.pdb
 F:\FPT\c#\RentBook\RentBook\obj\Debug\net8.0\RentBook.genruntimeconfig.cache
 F:\FPT\c#\RentBook\RentBook\obj\Debug\net8.0\ref\RentBook.dll
+F:\FPT\c#\RentBook\RentBook\obj\Debug\net8.0\RentBook.sourcelink.json

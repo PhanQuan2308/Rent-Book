@@ -15,21 +15,17 @@ namespace RentBook.Controllers
             _context = context;
         }
 
-        // GET: api/v1/Rentals
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Rental>>> GetRentals()
         {
-            // Lấy danh sách tất cả Rentals, kèm thông tin Customer
             return await _context.Rentals
                                  .Include(r => r.CustomerID)
                                  .ToListAsync();
         }
 
-        // GET: api/v1/Rentals/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<Rental>> GetRental(int id)
         {
-            // Tìm Rental dựa theo RentalID
             var rental = await _context.Rentals
                                        .Include(r => r.CustomerID)
                                        .FirstOrDefaultAsync(r => r.RentalID == id);
@@ -42,25 +38,21 @@ namespace RentBook.Controllers
             return rental;
         }
 
-        // POST: api/v1/Rentals
         [HttpPost]
         public async Task<ActionResult<Rental>> PostRental(Rental rental)
         {
-            // Kiểm tra nếu CustomerID hợp lệ
             var customerExists = await _context.Customers.AnyAsync(c => c.CustomerID == rental.CustomerID);
             if (!customerExists)
             {
                 return BadRequest(new { error = "Invalid CustomerID. Customer does not exist." });
             }
 
-            // Tạo mới Rental
             _context.Rentals.Add(rental);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetRental), new { id = rental.RentalID }, rental);
         }
 
-        // PUT: api/v1/Rentals/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> PutRental(int id, Rental rental)
         {
@@ -69,7 +61,6 @@ namespace RentBook.Controllers
                 return BadRequest(new { error = "RentalID mismatch." });
             }
 
-            // Đánh dấu thực thể là đã được sửa đổi
             _context.Entry(rental).State = EntityState.Modified;
 
             try
@@ -91,7 +82,6 @@ namespace RentBook.Controllers
             return NoContent();
         }
 
-        // DELETE: api/v1/Rentals/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRental(int id)
         {

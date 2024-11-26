@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RentBook.Model;
 
-
 namespace RentBook.Controllers
 {
     [Route("api/v1/[controller]")]
@@ -16,13 +15,13 @@ namespace RentBook.Controllers
             _context = context;
         }
 
-        [HttpGet("/getall")]
+        [HttpGet]
         public async Task<ActionResult<IEnumerable<ComicBook>>> GetComicBooks()
         {
             return await _context.ComicBooks.ToListAsync();
         }
 
-        [HttpPost("/create")]
+        [HttpPost]
         public async Task<ActionResult<ComicBook>> CreateComicBook(ComicBook comicBook)
         {
             _context.ComicBooks.Add(comicBook);
@@ -74,7 +73,6 @@ namespace RentBook.Controllers
 
             return NoContent();
         }
-
 
         private bool ComicBookExists(int id)
         {

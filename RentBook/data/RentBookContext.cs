@@ -13,20 +13,23 @@ namespace RentBook.Model
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Rental>()
-         .HasOne<Customer>()
-         .WithMany()
-         .HasForeignKey(r => r.CustomerID)
-         .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<RentalDetail>()
-                .HasOne(rd => rd.Rental)
-                .WithMany(r => r.RentalDetails)
-                .HasForeignKey(rd => rd.RentalID);
+            modelBuilder.Entity<RentalDetail>(entity =>
+            {
+                entity.HasKey(rd => rd.RentalDetailID);
 
-            modelBuilder.Entity<RentalDetail>()
-                .HasOne(rd => rd.ComicBook)
-                .WithMany(cb => cb.RentalDetails)
-                .HasForeignKey(rd => rd.ComicBookID);
+                entity.Property(rd => rd.Quantity).IsRequired();
+                entity.Property(rd => rd.PricePerDay).HasColumnType("decimal(10, 2)");
+
+                entity.HasOne<Rental>()
+                      .WithMany()
+                      .HasForeignKey(rd => rd.RentalID)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne<ComicBook>()
+                      .WithMany()
+                      .HasForeignKey(rd => rd.ComicBookID)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
         }
     }
 }

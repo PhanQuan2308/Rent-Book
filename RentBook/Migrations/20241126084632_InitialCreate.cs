@@ -61,8 +61,7 @@ namespace RentBook.Migrations
                     RentalDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     ReturnDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     Status = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    CustomerID1 = table.Column<int>(type: "int", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
@@ -72,12 +71,7 @@ namespace RentBook.Migrations
                         column: x => x.CustomerID,
                         principalTable: "Customers",
                         principalColumn: "CustomerID",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Rentals_Customers_CustomerID1",
-                        column: x => x.CustomerID1,
-                        principalTable: "Customers",
-                        principalColumn: "CustomerID");
+                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -90,7 +84,9 @@ namespace RentBook.Migrations
                     RentalID = table.Column<int>(type: "int", nullable: false),
                     ComicBookID = table.Column<int>(type: "int", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    PricePerDay = table.Column<decimal>(type: "decimal(65,30)", nullable: false)
+                    PricePerDay = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
+                    ComicBookID1 = table.Column<int>(type: "int", nullable: true),
+                    RentalID1 = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -100,13 +96,23 @@ namespace RentBook.Migrations
                         column: x => x.ComicBookID,
                         principalTable: "ComicBooks",
                         principalColumn: "ComicBookID",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_RentalDetails_ComicBooks_ComicBookID1",
+                        column: x => x.ComicBookID1,
+                        principalTable: "ComicBooks",
+                        principalColumn: "ComicBookID");
                     table.ForeignKey(
                         name: "FK_RentalDetails_Rentals_RentalID",
                         column: x => x.RentalID,
                         principalTable: "Rentals",
                         principalColumn: "RentalID",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_RentalDetails_Rentals_RentalID1",
+                        column: x => x.RentalID1,
+                        principalTable: "Rentals",
+                        principalColumn: "RentalID");
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -116,19 +122,24 @@ namespace RentBook.Migrations
                 column: "ComicBookID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_RentalDetails_ComicBookID1",
+                table: "RentalDetails",
+                column: "ComicBookID1");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_RentalDetails_RentalID",
                 table: "RentalDetails",
                 column: "RentalID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_RentalDetails_RentalID1",
+                table: "RentalDetails",
+                column: "RentalID1");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Rentals_CustomerID",
                 table: "Rentals",
                 column: "CustomerID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Rentals_CustomerID1",
-                table: "Rentals",
-                column: "CustomerID1");
         }
 
         /// <inheritdoc />

@@ -19,8 +19,8 @@ namespace RentBook.Controllers
         public async Task<ActionResult<IEnumerable<RentalDetail>>> GetRentalDetails()
         {
             return await _context.RentalDetails
-                                 .Include(rd => rd.Rental)
-                                 .Include(rd => rd.ComicBook)
+                                 .Include(rd => rd.RentalID)
+                                 .Include(rd => rd.ComicBookID)
                                  .ToListAsync();
         }
 
@@ -28,8 +28,8 @@ namespace RentBook.Controllers
         public async Task<ActionResult<RentalDetail>> GetRentalDetail(int id)
         {
             var rentalDetail = await _context.RentalDetails
-                                             .Include(rd => rd.Rental)
-                                             .Include(rd => rd.ComicBook)
+                                             .Include(rd => rd.RentalID)
+                                             .Include(rd => rd.ComicBookID)
                                              .FirstOrDefaultAsync(rd => rd.RentalDetailID == id);
 
             if (rentalDetail == null)
