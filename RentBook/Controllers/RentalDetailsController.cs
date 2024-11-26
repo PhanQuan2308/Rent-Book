@@ -9,10 +9,12 @@ namespace RentBook.Controllers
     public class RentalDetailsController : ControllerBase
     {
         private readonly RentBookContext _context;
+        private readonly ILogger<RentalDetailsController> _logger;
 
-        public RentalDetailsController(RentBookContext context)
+        public RentalDetailsController(RentBookContext context, ILogger<RentalDetailsController> logger) // Sửa tên controller trong constructor
         {
             _context = context;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -98,31 +100,27 @@ namespace RentBook.Controllers
             return _context.RentalDetails.Any(e => e.RentalDetailID == id);
         }
 
-        [HttpGet("report")]
-        public async Task<ActionResult<IEnumerable<object>>> GetRentalReport(DateTime startDate, DateTime endDate)
+        [HttpPost]
+        public async Task<ActionResult<Rental>> PostRental(Rental rental)
         {
-            var report = await _context.Rentals
-                .Where(r => r.RentalDate >= startDate && r.RentalDate <= endDate)  
-                .SelectMany(r => r.RentalDetails, (rental, rentalDetail) => new  
-                {
-                    BookName = _context.ComicBooks
-                        .Where(cb => cb.ComicBookID == rentalDetail.ComicBookID)
-                        .Select(cb => cb.Title)
-                        .FirstOrDefault(),  
-                    RentalDate = rental.RentalDate.ToString("dd/MM/yyyy"),  
-                    ReturnDate = rental.ReturnDate.HasValue
-                        ? rental.ReturnDate.Value.ToString("dd/MM/yyyy")
-                        : null, 
-                    CustomerName = _context.Customers
-                        .Where(c => c.CustomerID == rental.CustomerID)  
-                        .Select(c => c.FullName)
-                        .FirstOrDefault(), 
-                    Quantity = rentalDetail.Quantity  
-                })
-                .ToListAsync();
+            _logger.LogInformation("Creating new rental for customer {customerId}.", rental.CustomerID);
 
-            return Ok(report);
+            var customerExists = await _context.Customers.AnyAsync(c => c.CustomerID == rental.CustomerID);
+            if (!customerExists)
+            {
+                _logger.LogWarning("Customer with ID {customerId} does not exist.", rental.CustomerID);
+                return BadRequest(new { error = "Invalid CustomerID. Customer does not exist." });
+            }
+
+            _context.Rentals.Add(rental);
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Rental with ID {rentalId} created.", rental.RentalID);
+            return CreatedAtAction(nameof(GetRentalDetails), new { id = rental.RentalID }, rental);
         }
+
+
+
 
 
 
