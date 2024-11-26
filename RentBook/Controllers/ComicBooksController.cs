@@ -74,6 +74,7 @@ namespace RentBook.Controllers
             return NoContent();
         }
 
+
         private bool ComicBookExists(int id)
         {
             return _context.ComicBooks.Any(e => e.ComicBookID == id);

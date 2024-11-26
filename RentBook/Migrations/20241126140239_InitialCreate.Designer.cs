@@ -11,7 +11,7 @@ using RentBook.Model;
 namespace RentBook.Migrations
 {
     [DbContext(typeof(RentBookContext))]
-    [Migration("20241126084632_InitialCreate")]
+    [Migration("20241126140239_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -134,34 +134,40 @@ namespace RentBook.Migrations
 
             modelBuilder.Entity("Rental", b =>
                 {
-                    b.HasOne("Customer", null)
+                    b.HasOne("Customer", "Customer")
                         .WithMany("Rentals")
                         .HasForeignKey("CustomerID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("RentalDetail", b =>
                 {
                     b.HasOne("ComicBook", null)
-                        .WithMany()
+                        .WithMany("RentalDetails")
                         .HasForeignKey("ComicBookID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ComicBook", null)
-                        .WithMany("RentalDetails")
+                    b.HasOne("ComicBook", "ComicBook")
+                        .WithMany()
                         .HasForeignKey("ComicBookID1");
 
                     b.HasOne("Rental", null)
-                        .WithMany()
+                        .WithMany("RentalDetails")
                         .HasForeignKey("RentalID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Rental", null)
-                        .WithMany("RentalDetails")
+                    b.HasOne("Rental", "Rental")
+                        .WithMany()
                         .HasForeignKey("RentalID1");
+
+                    b.Navigation("ComicBook");
+
+                    b.Navigation("Rental");
                 });
 
             modelBuilder.Entity("ComicBook", b =>

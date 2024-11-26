@@ -15,30 +15,29 @@ namespace RentBook.Controllers
             _context = context;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Rental>>> GetRentals()
-        {
-            return await _context.Rentals
-                                 .Include(r => r.CustomerID)
-                                 .ToListAsync();
-        }
+
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Rental>> GetRental(int id)
         {
             var rental = await _context.Rentals
-                                       .Include(r => r.CustomerID)
-                                       .FirstOrDefaultAsync(r => r.RentalID == id);
+                .Where(r => r.RentalID == id)
+                .Include(r => r.Customer)
+                .Include(r => r.RentalDetails)
+                .FirstOrDefaultAsync();
 
             if (rental == null)
             {
                 return NotFound(new { message = "Rental not found." });
             }
 
-            return rental;
+            return Ok(rental);
         }
 
-        [HttpPost]
+
+
+
+        [HttpPost("create")]
         public async Task<ActionResult<Rental>> PostRental(Rental rental)
         {
             var customerExists = await _context.Customers.AnyAsync(c => c.CustomerID == rental.CustomerID);
@@ -50,8 +49,16 @@ namespace RentBook.Controllers
             _context.Rentals.Add(rental);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetRental), new { id = rental.RentalID }, rental);
+            var rentalWithCustomer = await _context.Rentals
+                .Where(r => r.RentalID == rental.RentalID)
+                .Include(r => r.Customer)
+                .FirstOrDefaultAsync();
+
+            return CreatedAtAction(nameof(GetRental), new { id = rentalWithCustomer.RentalID }, rentalWithCustomer);
         }
+
+
+
 
         [HttpPut("{id}")]
         public async Task<IActionResult> PutRental(int id, Rental rental)

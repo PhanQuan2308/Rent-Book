@@ -85,8 +85,8 @@ namespace RentBook.Migrations
                     ComicBookID = table.Column<int>(type: "int", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     PricePerDay = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
-                    ComicBookID1 = table.Column<int>(type: "int", nullable: true),
-                    RentalID1 = table.Column<int>(type: "int", nullable: true)
+                    RentalID1 = table.Column<int>(type: "int", nullable: true),
+                    ComicBookID1 = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {

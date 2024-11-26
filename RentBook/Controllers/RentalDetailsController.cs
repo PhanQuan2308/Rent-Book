@@ -11,45 +11,76 @@ namespace RentBook.Controllers
         private readonly RentBookContext _context;
         private readonly ILogger<RentalDetailsController> _logger;
 
-        public RentalDetailsController(RentBookContext context, ILogger<RentalDetailsController> logger) // Sửa tên controller trong constructor
+        public RentalDetailsController(RentBookContext context, ILogger<RentalDetailsController> logger)
         {
             _context = context;
             _logger = logger;
         }
 
-        [HttpGet]
+        [HttpGet("getall")]
         public async Task<ActionResult<IEnumerable<RentalDetail>>> GetRentalDetails()
         {
-            return await _context.RentalDetails
-                                 .Include(rd => rd.RentalID)
-                                 .Include(rd => rd.ComicBookID)
-                                 .ToListAsync();
+            var rentalDetails = await _context.RentalDetails
+                .Include(rd => rd.Rental)
+                .ThenInclude(r => r.Customer)
+                .Include(rd => rd.ComicBook)
+                .ToListAsync();
+
+            return Ok(rentalDetails);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<RentalDetail>> GetRentalDetail(int id)
         {
             var rentalDetail = await _context.RentalDetails
-                                             .Include(rd => rd.RentalID)
-                                             .Include(rd => rd.ComicBookID)
-                                             .FirstOrDefaultAsync(rd => rd.RentalDetailID == id);
+                .Include(rd => rd.Rental)
+                .ThenInclude(r => r.Customer)
+                .Include(rd => rd.ComicBook)
+                .FirstOrDefaultAsync(rd => rd.RentalDetailID == id);
 
             if (rentalDetail == null)
             {
                 return NotFound();
             }
 
-            return rentalDetail;
+            return Ok(rentalDetail);
         }
 
-        [HttpPost]
+        [HttpPost("create")]
         public async Task<ActionResult<RentalDetail>> PostRentalDetail(RentalDetail rentalDetail)
         {
+            // Kiểm tra xem Rental có tồn tại hay không
+            var rentalExists = await _context.Rentals.AnyAsync(r => r.RentalID == rentalDetail.RentalID);
+            if (!rentalExists)
+            {
+                return BadRequest(new { error = "Invalid RentalID. Rental does not exist." });
+            }
+
+            var comicBookExists = await _context.ComicBooks.AnyAsync(c => c.ComicBookID == rentalDetail.ComicBookID);
+            if (!comicBookExists)
+            {
+                return BadRequest(new { error = "Invalid ComicBookID. ComicBook does not exist." });
+            }
+
             _context.RentalDetails.Add(rentalDetail);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetRentalDetail), new { id = rentalDetail.RentalDetailID }, rentalDetail);
+            var rentalDetailWithInfo = await _context.RentalDetails
+                .Where(rd => rd.RentalDetailID == rentalDetail.RentalDetailID)
+                .Include(rd => rd.Rental)  
+                    .ThenInclude(r => r.Customer)  
+                .Include(rd => rd.ComicBook) 
+                .FirstOrDefaultAsync();
+
+            if (rentalDetailWithInfo == null)
+            {
+                return NotFound(new { error = "RentalDetail not found." });
+            }
+
+            return CreatedAtAction(nameof(GetRentalDetail), new { id = rentalDetailWithInfo.RentalDetailID }, rentalDetailWithInfo);
         }
+
+
 
         [HttpPut("{id}")]
         public async Task<IActionResult> PutRentalDetail(int id, RentalDetail rentalDetail)
@@ -80,6 +111,7 @@ namespace RentBook.Controllers
             return NoContent();
         }
 
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRentalDetail(int id)
         {
@@ -100,24 +132,7 @@ namespace RentBook.Controllers
             return _context.RentalDetails.Any(e => e.RentalDetailID == id);
         }
 
-        [HttpPost]
-        public async Task<ActionResult<Rental>> PostRental(Rental rental)
-        {
-            _logger.LogInformation("Creating new rental for customer {customerId}.", rental.CustomerID);
 
-            var customerExists = await _context.Customers.AnyAsync(c => c.CustomerID == rental.CustomerID);
-            if (!customerExists)
-            {
-                _logger.LogWarning("Customer with ID {customerId} does not exist.", rental.CustomerID);
-                return BadRequest(new { error = "Invalid CustomerID. Customer does not exist." });
-            }
-
-            _context.Rentals.Add(rental);
-            await _context.SaveChangesAsync();
-
-            _logger.LogInformation("Rental with ID {rentalId} created.", rental.RentalID);
-            return CreatedAtAction(nameof(GetRentalDetails), new { id = rental.RentalID }, rental);
-        }
 
 
 

@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 public class RentalDetail
 {
     public int RentalDetailID { get; set; }
@@ -5,4 +7,8 @@ public class RentalDetail
     public int ComicBookID { get; set; }
     public int Quantity { get; set; }
     public decimal PricePerDay { get; set; }
+
+    public Rental? Rental { get; set; }
+
+    public ComicBook? ComicBook { get; set; }
 }
