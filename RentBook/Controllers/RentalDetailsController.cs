@@ -97,5 +97,35 @@ namespace RentBook.Controllers
         {
             return _context.RentalDetails.Any(e => e.RentalDetailID == id);
         }
+
+        [HttpGet("report")]
+        public async Task<ActionResult<IEnumerable<object>>> GetRentalReport(DateTime startDate, DateTime endDate)
+        {
+            var report = await _context.Rentals
+                .Where(r => r.RentalDate >= startDate && r.RentalDate <= endDate)  
+                .SelectMany(r => r.RentalDetails, (rental, rentalDetail) => new  
+                {
+                    BookName = _context.ComicBooks
+                        .Where(cb => cb.ComicBookID == rentalDetail.ComicBookID)
+                        .Select(cb => cb.Title)
+                        .FirstOrDefault(),  
+                    RentalDate = rental.RentalDate.ToString("dd/MM/yyyy"),  
+                    ReturnDate = rental.ReturnDate.HasValue
+                        ? rental.ReturnDate.Value.ToString("dd/MM/yyyy")
+                        : null, 
+                    CustomerName = _context.Customers
+                        .Where(c => c.CustomerID == rental.CustomerID)  
+                        .Select(c => c.FullName)
+                        .FirstOrDefault(), 
+                    Quantity = rentalDetail.Quantity  
+                })
+                .ToListAsync();
+
+            return Ok(report);
+        }
+
+
+
+
     }
 }
