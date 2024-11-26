@@ -34,7 +34,7 @@ namespace RentBook.Controllers
             return customer;
         }
 
-        [HttpPost]
+        [HttpPost("create")]
         public async Task<ActionResult<Customer>> PostCustomer(Customer customer)
         {
             _context.Customers.Add(customer);
